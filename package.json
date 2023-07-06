@@ -1,0 +1,46 @@
+{
+  "name": "js-rest-api-prisma",
+  "version": "1.0.0",
+  "description": "template for rest api using expressJs and prisma as orm",
+  "main": "index.js",
+  "scripts": {
+    "eslint": "./node_modules/eslint/bin/eslint.js --max-warnings 0 --ext .js .",
+    "start": "node ./bin/start",
+    "start:dev": "nodemon ./bin/start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MkDierz/js-rest-api-prisma.git"
+  },
+  "keywords": [
+    "rest",
+    "api",
+    "prisma",
+    "expressjs"
+  ],
+  "author": "MkDierz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MkDierz/js-rest-api-prisma/issues"
+  },
+  "homepage": "https://github.com/MkDierz/js-rest-api-prisma#readme",
+  "devDependencies": {
+    "@types/http-errors": "^2.0.1",
+    "@types/morgan": "^1.9.4",
+    "eslint": "^8.42.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "nodemon": "^2.0.22",
+    "prisma": "^4.16.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.16.2",
+    "axios": "^1.3.4",
+    "debug": "^4.3.4",
+    "dotenv": "^16.1.4",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "http-errors": "^2.0.0",
+    "morgan": "^1.10.0"
+  }
+}
