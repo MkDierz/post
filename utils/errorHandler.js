@@ -7,6 +7,7 @@ function validation(req, res, next) {
     field: error.path,
     message: error.msg,
   });
+  console.log(validationResult(req));
   const result = validationResult(req).formatWith(errorFormatter);
   if (!result.isEmpty()) {
     return next(httpError.UnprocessableEntity(result.array()));
@@ -36,7 +37,14 @@ function prisma(e) {
   }
   throw e;
 }
+
+function prismaWrapper(e, next) {
+  const errorMessage = prisma(e);
+  return next(httpError.Conflict({ detail: errorMessage, field: e.meta?.target }));
+}
+
 module.exports = {
   validation,
   prisma,
+  prismaWrapper,
 };
