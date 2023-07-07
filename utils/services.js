@@ -7,6 +7,15 @@ const auth = {
   }),
 };
 
+const user = {
+  getUsers: (id, Authorization) => axios.get(`${baseUrl}/user?id=${id.toString()}`, {
+    headers: {
+      Authorization,
+    },
+  }).then((response) => response.data),
+};
+
 module.exports = {
   auth,
+  user,
 };
