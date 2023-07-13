@@ -7,7 +7,6 @@ function validation(req, res, next) {
     field: error.path,
     message: error.msg,
   });
-  console.log(validationResult(req));
   const result = validationResult(req).formatWith(errorFormatter);
   if (!result.isEmpty()) {
     return next(httpError.UnprocessableEntity(result.array()));
