@@ -10,7 +10,7 @@ const tagsField = body('tags').isArray().withMessage('unacceptable input')
     return true;
   })
   .optional();
-const parentIdField = body('parentId').isNumeric().withMessage('Valid content required');
+const parentIdField = body('parentId').isNumeric().withMessage('Valid content required').optional();
 const searchQueryField = query('query').isAlphanumeric().withMessage('valid query required').optional();
 const userIdQueryField = query('userId').isNumeric().withMessage('valid userId required').toInt()
   .optional();
@@ -27,7 +27,7 @@ const idQuery = query('id')
 const createFields = [
   tagsField,
   contentField,
-  parentIdField.optional(),
+  parentIdField,
 ];
 const updateFields = [
   tagsField,
