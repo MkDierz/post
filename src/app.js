@@ -16,7 +16,7 @@ const prisma = new PrismaClient();
 
 async function create(req, res, next) {
   const { user, body } = req;
-  const data = Object;
+  const data = {};
   data.tags = body.tags;
   delete body.tags;
 
@@ -107,7 +107,7 @@ async function readById(req, res, next) {
 async function updateById(req, res, next) {
   const { user, body, params } = req;
   const { id } = params;
-  const data = Object;
+  const data = {};
 
   data.tags = body.tags || [];
   delete body.tags;
@@ -134,7 +134,7 @@ async function deleteById(req, res, next) {
   const { user, params } = req;
   const { id } = params;
 
-  const data = Object;
+  const data = {};
   try {
     data.isOwned = await prisma.post.findFirst({ where: { id, userId: user.id } });
     if (!data.isOwned) {
