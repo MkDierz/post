@@ -35,7 +35,7 @@ async function create(req, res, next) {
 
 async function read(req, res, next) {
   const { query, id, userId } = req.query;
-  const data = Object;
+  const data = {};
   try {
     data.post = await prisma.post.findMany({
       ...(query && { where: { content: { search: query } } }),
@@ -46,6 +46,8 @@ async function read(req, res, next) {
           select: { children: true },
         },
       },
+      orderBy: [{ createdAt: 'desc' },
+      ],
     });
   } catch (e) {
     return errorHandler.prismaWrapper(e, next);
@@ -67,7 +69,7 @@ async function read(req, res, next) {
 async function readById(req, res, next) {
   const { id } = req.params;
 
-  const data = Object;
+  const data = {};
   try {
     data.post = await prisma.post.findUnique({
       where: { id },
