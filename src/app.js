@@ -15,22 +15,17 @@ const {
 const prisma = new PrismaClient();
 
 async function create(req, res, next) {
-  const { user, body } = req;
-  const data = {};
-  data.tags = body.tags;
-  delete body.tags;
+  const { user, body: { tags, ...postData } } = req;
 
   try {
-    data.created = await prisma.post.create({ data: { ...body, userId: user.id } });
+    const createdPost = await prisma.post.create({ data: { ...postData, userId: user.id } });
+    const postTags = await tagService
+      .createPostTags(createdPost.id, tags, req.headers.authorization) || [];
+
+    return res.send({ ...createdPost, tags: postTags });
   } catch (e) {
     return errorHandler.prismaWrapper(e, next);
   }
-  data.tags = await tagService.createPostTags(
-    data.created.id,
-    data.tags,
-    req.headers.authorization,
-  ) || [];
-  return res.send({ ...data.created, tags: data.tags });
 }
 
 async function read(req, res, next) {
@@ -43,7 +38,7 @@ async function read(req, res, next) {
       ...(userId && { where: { userId } }),
       include: {
         _count: {
-          select: { children: true },
+          select: { comment: true },
         },
       },
       orderBy: [{ createdAt: 'desc' },
@@ -52,7 +47,7 @@ async function read(req, res, next) {
   } catch (e) {
     return errorHandler.prismaWrapper(e, next);
   }
-  if (data.post) {
+  if (data.post.length !== 0) {
     data.userIds = extractUniqueKey('userId', data.post);
     data.post = renameKeyInArray(data.post, 'userId', 'user');
     data.users = await userService.getUsers(data.userIds, req.headers.authorization);
@@ -60,7 +55,7 @@ async function read(req, res, next) {
     data.post = await fetchTagsFromPosts(data.post, req.headers.authorization);
     data.post = data.post.map(({ _count, ...p }) => ({
       ...p,
-      children: _count.children,
+      comment: _count.comment,
     }));
   }
   return res.send(data.post);
@@ -74,10 +69,10 @@ async function readById(req, res, next) {
     data.post = await prisma.post.findUnique({
       where: { id },
       include: {
-        children: {
+        comment: {
           include: {
             _count: {
-              select: { children: true },
+              select: { comment: true },
             },
           },
         },
@@ -88,18 +83,18 @@ async function readById(req, res, next) {
   }
   data.userIds = [
     data.post.userId,
-    ...extractUniqueKey('userId', data.post.children),
+    ...extractUniqueKey('userId', data.post.comment),
   ];
   data.post = renameKey(data.post, 'userId', 'user');
   data.users = await userService.getUsers(data.userIds, req.headers.authorization);
   data.post.tags = await tagService.getPostTags(id, req.headers.authorization);
   data.post = replaceKeyValueWithMatchingObject(data.post, 'user', data.users, 'id');
-  data.post.children = renameKeyInArray(data.post.children, 'userId', 'user');
-  data.post.children = replaceKeyInObjectArrayWithValue(data.post.children, 'user', data.users, 'id');
-  data.post.children = await fetchTagsFromPosts(data.post.children, req.headers.authorization);
-  data.post.children = data.post.children.map(({ _count, ...p }) => ({
+  data.post.comment = renameKeyInArray(data.post.comment, 'userId', 'user');
+  data.post.comment = replaceKeyInObjectArrayWithValue(data.post.comment, 'user', data.users, 'id');
+  data.post.comment = await fetchTagsFromPosts(data.post.comment, req.headers.authorization);
+  data.post.comment = data.post.comment.map(({ _count, ...p }) => ({
     ...p,
-    children: _count.children,
+    comment: _count.comment,
   }));
   return res.send(data.post);
 }

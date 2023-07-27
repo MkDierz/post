@@ -16,8 +16,8 @@ model Post {
   id        Int      @id @default(autoincrement())
   content   String
   userId    Int
-  children  Post[]   @relation("PostChildren")
-  parent    Post?    @relation("PostChildren", fields: [parentId], references: [id])
+  comment   Post[]   @relation("PostComment")
+  parent    Post?    @relation("PostComment", fields: [parentId], references: [id])
   parentId  Int?     @map("parentId")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
