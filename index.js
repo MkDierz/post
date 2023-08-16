@@ -5,11 +5,13 @@ const httpErrors = require('http-errors');
 const logger = require('morgan');
 const path = require('path');
 
+const { jsonCompressorMiddleware } = require('@mkdierz/json-compressor');
 const indexRouter = require('./src/routes');
 
 const app = express();
 
 app.use(logger('dev'));
+app.use(jsonCompressorMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

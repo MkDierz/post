@@ -1,5 +1,3 @@
-const { tag: tagService } = require('./services');
-
 function exclude(data, keys) {
   const returnValue = { ...data };
   keys.forEach((key) => {
@@ -151,9 +149,9 @@ async function asyncLooper(array, asyncFunc, cleanUp = false) {
   return results;
 }
 
-const fetchTagsFromPosts = async (arr, authorization) => {
+const fetchTagsFromPosts = async (arr, tagService) => {
   const keys = extractUniqueKey('id', arr);
-  const tagsPair = await tagService.getPostTags(keys, authorization);
+  const tagsPair = await tagService.getPostTags(keys);
   if (arr.length === 1) {
     return [{ ...arr[0], tags: tagsPair }];
   }

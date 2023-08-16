@@ -34,6 +34,7 @@
     "prisma": "^4.16.2"
   },
   "dependencies": {
+    "@mkdierz/json-compressor": "^1.1.0",
     "@prisma/client": "^4.16.2",
     "axios": "^1.3.4",
     "debug": "^4.3.4",

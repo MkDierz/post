@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { checkToken } = require('../utils/middleware');
+const { checkToken, initServices } = require('../utils/middleware');
 const errorHandler = require('../utils/errorHandler');
 const {
   idParam,
@@ -16,6 +16,7 @@ const {
 } = require('./app');
 
 const router = Router();
+router.use(initServices);
 router.use(checkToken);
 
 router.post('/', createFields, errorHandler.validation, create);

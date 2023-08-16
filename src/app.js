@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { httpError } = require('../config');
 const errorHandler = require('../utils/errorHandler');
-const { user: userService, tag: tagService } = require('../utils/services');
 const {
   replaceKeyInObjectArrayWithValue,
   replaceKeyValueWithMatchingObject,
@@ -10,17 +9,16 @@ const {
   renameKeyInArray,
   fetchTagsFromPosts,
 } = require('../utils/dro');
-// const { clean, filterObject } = require('../utils/dro');
 
 const prisma = new PrismaClient();
 
 async function create(req, res, next) {
   const { user, body: { tags, ...postData } } = req;
+  const { tagService } = req.services;
 
   try {
     const createdPost = await prisma.post.create({ data: { ...postData, userId: user.id } });
-    const postTags = await tagService
-      .createPostTags(createdPost.id, tags, req.headers.authorization) || [];
+    const postTags = await tagService.createPostTags(createdPost.id, tags) || [];
 
     return res.send({ ...createdPost, tags: postTags });
   } catch (e) {
@@ -30,6 +28,7 @@ async function create(req, res, next) {
 
 async function read(req, res, next) {
   const { query, id, userId } = req.query;
+  const { userService, tagService } = req.services;
   const data = {};
   try {
     data.post = await prisma.post.findMany({
@@ -50,9 +49,9 @@ async function read(req, res, next) {
   if (data.post.length !== 0) {
     data.userIds = extractUniqueKey('userId', data.post);
     data.post = renameKeyInArray(data.post, 'userId', 'user');
-    data.users = await userService.getUsers(data.userIds, req.headers.authorization);
+    data.users = await userService.getUsers(data.userIds);
     data.post = replaceKeyInObjectArrayWithValue(data.post, 'user', data.users, 'id');
-    data.post = await fetchTagsFromPosts(data.post, req.headers.authorization);
+    data.post = await fetchTagsFromPosts(data.post, tagService);
     data.post = data.post.map(({ _count, ...p }) => ({
       ...p,
       comment: _count.comment,
@@ -63,6 +62,7 @@ async function read(req, res, next) {
 
 async function readById(req, res, next) {
   const { id } = req.params;
+  const { userService, tagService } = req.services;
 
   const data = {};
   try {
@@ -101,6 +101,7 @@ async function readById(req, res, next) {
 
 async function updateById(req, res, next) {
   const { user, body, params } = req;
+  const { tagService } = req.services;
   const { id } = params;
   const data = {};
 
@@ -120,13 +121,14 @@ async function updateById(req, res, next) {
     return errorHandler.prismaWrapper(e, next);
   }
 
-  data.tags = await tagService.editPostTags(id, data.tags, req.headers.authorization);
+  data.tags = await tagService.editPostTags(id, data.tags);
 
   return res.send({ ...data.update, tags: data.tags });
 }
 
 async function deleteById(req, res, next) {
   const { user, params } = req;
+  const { tagService } = req.services;
   const { id } = params;
 
   const data = {};
@@ -141,7 +143,7 @@ async function deleteById(req, res, next) {
   } catch (e) {
     return errorHandler.prismaWrapper(e, next);
   }
-  await tagService.deletePostTags(id, req.headers.authorization);
+  await tagService.deletePostTags(id);
 
   return res.send({ ...data.delete });
 }
