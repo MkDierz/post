@@ -86,12 +86,12 @@ async function readById(req, res, next) {
     ...extractUniqueKey('userId', data.post.comment),
   ];
   data.post = renameKey(data.post, 'userId', 'user');
-  data.users = await userService.getUsers(data.userIds, req.headers.authorization);
-  data.post.tags = await tagService.getPostTags(id, req.headers.authorization);
+  data.users = await userService.getUsers(data.userIds);
+  data.post.tags = await tagService.getPostTags(id);
   data.post = replaceKeyValueWithMatchingObject(data.post, 'user', data.users, 'id');
   data.post.comment = renameKeyInArray(data.post.comment, 'userId', 'user');
   data.post.comment = replaceKeyInObjectArrayWithValue(data.post.comment, 'user', data.users, 'id');
-  data.post.comment = await fetchTagsFromPosts(data.post.comment, req.headers.authorization);
+  data.post.comment = await fetchTagsFromPosts(data.post.comment, tagService);
   data.post.comment = data.post.comment.map(({ _count, ...p }) => ({
     ...p,
     comment: _count.comment,
