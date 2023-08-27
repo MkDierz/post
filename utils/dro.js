@@ -151,6 +151,9 @@ async function asyncLooper(array, asyncFunc, cleanUp = false) {
 
 const fetchTagsFromPosts = async (arr, tagService) => {
   const keys = extractUniqueKey('id', arr);
+  if (keys.length === 0) {
+    return arr;
+  }
   const tagsPair = await tagService.getPostTags(keys);
   if (arr.length === 1) {
     return [{ ...arr[0], tags: tagsPair }];
